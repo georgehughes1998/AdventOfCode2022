@@ -4,6 +4,8 @@ public class Program
 {
    public static void Main(string[] args)
    {
-      Console.WriteLine(Reader.Read(args[0]).MarkerAfterStartMessageMarkerIndex());
+      var dataStream = Reader.Read(args[0]);
+      Console.WriteLine(dataStream.MarkerAfterStartPacketMarkerIndex());
+      Console.WriteLine(dataStream.MarkerAfterStartMessageMarkerIndex());
    }
 }
