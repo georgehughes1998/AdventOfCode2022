@@ -9,11 +9,6 @@ public static class Reader
 
    public static IList<CrateStack> ReadCrateStacks(string filename)
    {
-      var a = File.ReadLines(filename)
-         .Where(line => CrateRegex.IsMatch(line))
-         .Select(line =>
-            CrateRegex.Matches(line));
-
       return File.ReadLines(filename)
          .Where(line => CrateRegex.IsMatch(line))
          .Select(line =>
