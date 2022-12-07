@@ -11,6 +11,11 @@ public class Program
          .ReadCrateStacks(args[0])
          .Rearrange(Reader.ReadInstructions(args[0]))
          .GetTops());
+
+      Console.WriteLine(Reader
+         .ReadCrateStacks(args[0])
+         .Rearrange9001(Reader.ReadInstructions(args[0]))
+         .GetTops());
    }
 }
 
@@ -74,6 +79,28 @@ public static class SupplyStacksTests
    }
 
    [Test]
+   public static void Rearrange9001_WithTestData_ReturnsExpectedValues()
+   {
+      IList<CrateStack> expectedResultStack = new List<CrateStack>
+      {
+         new CrateStack()
+            .Push(new Crate('M')),
+         new CrateStack()
+            .Push(new Crate('C')),
+         new CrateStack()
+            .Push(new Crate('P'))
+            .Push(new Crate('Z'))
+            .Push(new Crate('N'))
+            .Push(new Crate('D'))
+      };
+
+      var testDataCrateStacks = TestDataCrateStacksCreator();
+
+      testDataCrateStacks.Rearrange9001(TestDataInstructions);
+      Assert.AreEqual(expectedResultStack, testDataCrateStacks);
+   }
+
+   [Test]
    public static void ToString_WithTestCrateStacks_ReturnsExpectedValues()
    {
       Assert.AreEqual("NDP", TestDataCrateStacksCreator().GetTops());
@@ -91,6 +118,20 @@ public static class CrateStackExtensions
    public static IList<CrateStack> Rearrange(this IList<CrateStack> stacks, IEnumerable<Instruction> instructions)
    {
       instructions.ToList().ForEach(instruction => stacks.Rearrange(instruction));
+      return stacks;
+   }
+
+   public static IList<CrateStack> Rearrange9001(this IList<CrateStack> stacks, IEnumerable<Instruction> instructions)
+   {
+      instructions.ToList().ForEach(instruction => stacks.Rearrange9001(instruction));
+      return stacks;
+   }
+
+   public static IList<CrateStack> Rearrange9001(this IList<CrateStack> stacks, Instruction instruction)
+   {
+      var tmp = new CrateStack();
+      for (var i = 0; i < instruction.Count; i++) tmp.Push(stacks[instruction.From - 1].Pop());
+      for (var i = 0; i < instruction.Count; i++) stacks[instruction.To - 1].Push(tmp.Pop());
       return stacks;
    }
 
