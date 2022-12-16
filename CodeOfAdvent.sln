@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day6TuningTrouble", "Day6Tu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day5SupplyStacks", "Day5SupplyStacks\Day5SupplyStacks.csproj", "{87467B83-961D-4979-AA62-EBBB3433430C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day7NoSpaceLeftOnDevice", "Day7NoSpaceLeftOnDevice\Day7NoSpaceLeftOnDevice.csproj", "{095A125A-9678-49B6-B3E2-43382767361E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day7NoSpaceLeftOnDevice", "Day7NoSpaceLeftOnDevice\Day7NoSpaceLeftOnDevice.csproj", "{095A125A-9678-49B6-B3E2-43382767361E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Day16ProboscideaVolcanium", "Day16ProboscideaVolcanium\Day16ProboscideaVolcanium.csproj", "{9B7D483E-6BE0-439C-9BA0-0CCBBFADEC0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{095A125A-9678-49B6-B3E2-43382767361E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{095A125A-9678-49B6-B3E2-43382767361E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{095A125A-9678-49B6-B3E2-43382767361E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B7D483E-6BE0-439C-9BA0-0CCBBFADEC0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7D483E-6BE0-439C-9BA0-0CCBBFADEC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7D483E-6BE0-439C-9BA0-0CCBBFADEC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7D483E-6BE0-439C-9BA0-0CCBBFADEC0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
