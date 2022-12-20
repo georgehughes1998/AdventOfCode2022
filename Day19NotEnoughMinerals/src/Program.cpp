@@ -4,16 +4,31 @@ int main (int argc, char *argv[])
 {
     DataReader reader("data.txt");
     std::list<Blueprint> blueprints = reader.read();
+    std::list<std::future<int>> qualityFutures;
+    std::list<std::future<int>> qualityScores;
 
     Resources resources = Resources{0, 0, 0, 0};
     Resources robots = Resources{1, 0, 0, 0};
 
     int qualityCounter = 0;
-    for (Blueprint blueprint : blueprints)
+    int numberCompleted = 0;
+    int numberBlueprints = blueprints.size();
+
+    for (Blueprint& blueprint : blueprints)
     {
-        int qualityLevel = getQualityLevel(24, blueprint, resources, robots);
-        qualityCounter += qualityLevel;
-        std::cout << "Quality level: " << qualityLevel << std::endl;
+       qualityFutures.push_back(std::async(
+          [blueprint, resources, robots, &numberCompleted, numberBlueprints]() { 
+             int result = getQualityLevel(24, blueprint, resources, robots);
+             numberCompleted++; // race conditions ignored
+             std::cout << "Completed " << numberCompleted << " / " << numberBlueprints << std::endl;
+             return result;
+          }));
+    }
+
+    for (std::future<int>& qualityFuture : qualityFutures)
+    {
+       int qualityLevel = qualityFuture.get();
+       qualityCounter += qualityLevel;
     }
     std::cout << "Total Quality Level: " << qualityCounter << std::endl;
 
