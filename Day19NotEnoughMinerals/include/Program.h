@@ -5,6 +5,7 @@
 #include "Blueprint.h"
 
 #include <algorithm>
+#include <future>
 
 int getQualityLevel(int minutes, Blueprint blueprint, Resources resources, Resources robots);
 
