@@ -11,7 +11,7 @@ int main (int argc, char *argv[])
     int qualityCounter = 0;
     for (const Blueprint& blueprint : blueprints)
     {
-        int qualityLevel = getQualityLevel(20, blueprint, resources, robots);
+        int qualityLevel = getQualityLevel(24, blueprint, resources, robots);
         qualityCounter += qualityLevel;
         std::cout << "Quality level: " << qualityLevel << std::endl;
     }
@@ -39,40 +39,77 @@ int getQualityLevel(int minutes, Blueprint blueprint, Resources resources, Resou
         (resources.ore > std::max({blueprint.ore, blueprint.clay, blueprint.obsidian_ore, blueprint.geode_ore}) && robots.obsidian == 0))
         return 0;
 
-    // Store the scores for each branch
-    std::list<std::future<int>> qualityLevelsFutures;
+    // Store the args for each branch
+    std::list<std::tuple<int, Blueprint, Resources, Resources>> argsList;
 
     // Add robots based using resources
     if (resources.ore >= blueprint.ore)
-        qualityLevelsFutures.push_back(std::async(getQualityLevel, minutes - 1,
+       argsList.push_back(std::make_tuple(minutes - 1,
                                blueprint,
                                Resources{newResources.ore - blueprint.ore, newResources.clay, newResources.obsidian, newResources.geode},
                                Resources{robots.ore + 1, robots.clay, robots.obsidian, robots.geode}));
     if (resources.ore >= blueprint.clay)
-        qualityLevelsFutures.push_back(std::async(getQualityLevel, minutes - 1,
+        argsList.push_back(std::make_tuple(minutes - 1,
                                blueprint,
                                Resources{newResources.ore - blueprint.clay, newResources.clay, newResources.obsidian, newResources.geode},
                                Resources{robots.ore, robots.clay + 1, robots.obsidian, robots.geode}));
     if (resources.ore >= blueprint.obsidian_ore && resources.clay >= blueprint.obsidian_clay)
-        qualityLevelsFutures.push_back(std::async(getQualityLevel, minutes - 1,
+        argsList.push_back(std::make_tuple(minutes - 1,
                                blueprint,
                                Resources{newResources.ore - blueprint.obsidian_ore, newResources.clay - blueprint.obsidian_clay, newResources.obsidian, newResources.geode},
                                Resources{robots.ore, robots.clay, robots.obsidian + 1, robots.geode}));
     if (resources.ore >= blueprint.geode_ore && resources.obsidian >= blueprint.geode_obsidian)
-        qualityLevelsFutures.push_back(std::async(getQualityLevel, minutes - 1,
+        argsList.push_back(std::make_tuple(minutes - 1,
                                blueprint,
                                Resources{newResources.ore - blueprint.obsidian_ore, newResources.clay, newResources.obsidian - blueprint.geode_obsidian, newResources.geode},
                                Resources{robots.ore, robots.clay, robots.obsidian, robots.geode + 1}));
 
     // Don't/can't buy a robot
-    qualityLevelsFutures.push_back(std::async(getQualityLevel, minutes - 1, blueprint, newResources, robots));
+    argsList.push_back(std::make_tuple(minutes - 1, blueprint, newResources, robots));
     
-    std::list<int> qualityLevels;
+    int maxQualityLevel = 0;
 
-    std::transform(qualityLevelsFutures.begin(), 
-       qualityLevelsFutures.end(), 
-       std::back_inserter(qualityLevels),
-       [](std::future<int>& f) { return f.get(); });
+    // Async if above threshold
+    if (minutes > 10)
+    {
+       std::list<std::future<int>> qualityLevelFutures;
 
-    return *std::max_element(qualityLevels.begin(), qualityLevels.end());
+       for (std::tuple<int, Blueprint, Resources, Resources>& args : argsList)
+       {
+          qualityLevelFutures.push_back(std::async(getQualityLevelArgs, args));
+       }
+
+       for (std::future<int>& qualityLevelFuture : qualityLevelFutures)
+       {
+          int qualityLevel = qualityLevelFuture.get();
+          if (qualityLevel > maxQualityLevel)
+             maxQualityLevel = qualityLevel;
+       }
+    }
+    // Call normally if below threshold
+    else
+    {
+       for (std::tuple<int, Blueprint, Resources, Resources>& args : argsList)
+       {
+          int qualityLevel = getQualityLevelArgs(args);
+          if (qualityLevel > maxQualityLevel)
+             maxQualityLevel = qualityLevel;
+       }
+    }
+
+    //std::transform(qualityLevelsFutures.begin(), 
+    //   qualityLevelsFutures.end(), 
+    //   std::back_inserter(qualityLevels),
+    //   [](std::future<int>& f) { return f.get(); });
+
+    return maxQualityLevel;
+}
+
+int getQualityLevelArgs(std::tuple<int, Blueprint, Resources, Resources> args)
+{
+   return getQualityLevel(
+      std::get<0>(args),
+      std::get<1>(args),
+      std::get<2>(args),
+      std::get<3>(args));
 }
