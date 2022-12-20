@@ -2,18 +2,33 @@
 
 int main (int argc, char *argv[])
 {
-    DataReader reader("data.txt");
+    DataReader reader("testData.txt");
     std::list<Blueprint> blueprints = reader.read();
+    std::list<std::future<int>> qualityFutures;
+    std::list<std::future<int>> qualityScores;
 
     Resources resources = Resources{0, 0, 0, 0};
     Resources robots = Resources{1, 0, 0, 0};
 
     int qualityCounter = 0;
-    for (const Blueprint& blueprint : blueprints)
+    int numberCompleted = 0;
+    int numberBlueprints = blueprints.size();
+
+    for (Blueprint& blueprint : blueprints)
     {
-        int qualityLevel = getQualityLevel(24, blueprint, resources, robots);
-        qualityCounter += qualityLevel;
-        std::cout << "Quality level: " << qualityLevel << std::endl;
+       qualityFutures.push_back(std::async(
+          [blueprint, resources, robots, &numberCompleted, numberBlueprints]() { 
+             int result = getQualityLevel(24, blueprint, resources, robots);
+             numberCompleted++; // race conditions ignored
+             std::cout << "Completed " << numberCompleted << " / " << numberBlueprints << std::endl;
+             return result;
+          }));
+    }
+
+    for (std::future<int>& qualityFuture : qualityFutures)
+    {
+       int qualityLevel = qualityFuture.get();
+       qualityCounter += qualityLevel;
     }
     std::cout << "Total Quality Level: " << qualityCounter << std::endl;
     std::cin.get();
@@ -70,7 +85,7 @@ int getQualityLevel(int minutes, Blueprint blueprint, Resources resources, Resou
     int maxQualityLevel = 0;
 
     // Async if above threshold
-    if (minutes > 10)
+    if (minutes > 18)
     {
        std::list<std::future<int>> qualityLevelFutures;
 
@@ -96,11 +111,6 @@ int getQualityLevel(int minutes, Blueprint blueprint, Resources resources, Resou
              maxQualityLevel = qualityLevel;
        }
     }
-
-    //std::transform(qualityLevelsFutures.begin(), 
-    //   qualityLevelsFutures.end(), 
-    //   std::back_inserter(qualityLevels),
-    //   [](std::future<int>& f) { return f.get(); });
 
     return maxQualityLevel;
 }
